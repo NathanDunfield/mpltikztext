@@ -14,4 +14,3 @@ figure.tight_layout()
 mpltikztext.savefig(figure, 'sine_wave.pdf', path='plots')
 figure.savefig('plots/raw_figure.pdf')
 
-

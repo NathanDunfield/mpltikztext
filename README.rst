@@ -33,6 +33,14 @@ in the resulting directory do::
 
 See the above Python and TeX files for more on usage.
 
+Fun feature
+===========
+
+Each TikZ overlay generated includes a ``scope`` where the coordinates
+are the native ones with respect to the data plotted.  This is
+potentially useful for adding on annotations or whatever in TeX
+without firing up matplotlib.
+
 
 License
 =======

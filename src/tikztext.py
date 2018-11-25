@@ -81,6 +81,21 @@ def save_without_text(figure, filename):
     for text in texts:
         text.set_alpha(alphas[text])
 
+def record_data_coor_sys_for_tikz(axis):
+    data_to_tikz = axis.transData + display_to_tikz(axis.figure)
+    shift = data_to_tikz.transform([0.0, 0.0])
+    delta = data_to_tikz.transform([1.0, 1.0]) - shift
+    dL = axis.dataLim
+    data_rect = (dL.x0, dL.y0, dL.x1, dL.y1)
+    content =  "  % Internal axis coordinate system\n"
+    content += "  \\begin{scope}[shift={(%.8f, %.8f)},\n" % tuple(shift)
+    content += "                xscale=%.8f, yscale=%.8f]\n" % tuple(delta)
+    content += "      %"
+    content += "\\draw[red] (%.6f, %.6f) rectangle (%.6f, %.6f);\n" % data_rect
+    content += "  \\end{scope}"
+    return content
+
+
 def save_matplotlib_for_paper(figure, file_name, path='plots/'):
     """
     Saving a matplotlib figure for use in a paper.  The given filename
@@ -105,7 +120,9 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/'):
 
     # Make TikZ overlay
     contents =  "\\begin{tikzoverlay}[width=\\matplotlibfigurewidth]{%s}[\\matplotlibfigurefont]\n" % (image_file,)
-    contents += "\n".join([convert_text_to_tikz(text) for text in active_texts(figure)])
+    tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
+    tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
+    contents += "\n".join(tikz_commands)
     contents += "\n\\end{tikzoverlay}\n"
 
     # Save to TeX file.
