@@ -1,6 +1,6 @@
-==========
-mpltikztex
-==========
+===========
+mpltikztext
+===========
 
 Saving Matplotlib figures so that all text becomes a TikZ overlay.
 This allows for easy customization of the text on the LaTeX

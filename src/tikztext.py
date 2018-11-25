@@ -26,12 +26,11 @@ def display_to_tikz(figure):
     tranformation *from* the display coordinates of the matplotlib
     figure *to* the TikZ overlay coordinates.
     """
-    return figure.transFigure.inverted()
     D = figure.transFigure  # figure -> display
     assert all(D.transform([0, 0]) == 0)
     width, height = D.transform([1, 1])
     A = 100.0/width
-    return mpl.transforms.Affine2D(np.diag(A, A, 1.0))
+    return mpl.transforms.Affine2D(np.diag([A, A, 1.0]))
 
 def tikz_position(artist):
     """
@@ -105,9 +104,9 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/'):
     save_without_text(figure, image_file)
 
     # Make TikZ overlay
-    contents =  "\\begin{tikzoverlayabs}[width=\\matplotlibfigurewidth]{%s}[\\matplotlibfigurefont]\n" % (image_file,)
+    contents =  "\\begin{tikzoverlay}[width=\\matplotlibfigurewidth]{%s}[\\matplotlibfigurefont]\n" % (image_file,)
     contents += "\n".join([convert_text_to_tikz(text) for text in active_texts(figure)])
-    contents += "\n\\end{tikzoverlayabs}\n"
+    contents += "\n\\end{tikzoverlay}\n"
 
     # Save to TeX file.
     texname = os.path.join(path, base_name + '.tex')
