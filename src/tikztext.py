@@ -62,7 +62,13 @@ def convert_text_to_tikz(text):
         pass
     # Get the TikZ coordinates
     x, y = tikz_position(text)
-    return "  \\draw (%.6f, %.6f) node[%s] {%s};" % (x, y, horvert.strip(), text_str)
+    if '\n' in text_str:
+        horvert = ','.join([horvert,
+                            'align=' + text.get_horizontalalignment()])
+        text_str = text_str.replace('\n', ' \\\\\n')
+    return "  \\draw (%.6f, %.6f) node[%s] {%s};" % (x, y,
+                                                     horvert.strip(),
+                                                     text_str)
 
 def save_without_text(figure, filename):
     """
