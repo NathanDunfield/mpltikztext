@@ -5,9 +5,8 @@ mpltikztext
 Saving Matplotlib figures so that all text becomes a TikZ overlay.
 This allows for easy customization of the text on the LaTeX
 side. Nominally for use with the LaTeX style ``nmd/graphics`` from `my
-personal document class
-<https://github/NathanDunfield/latex_class>`_, though it only
-depends on a few lines of that.
+personal document class <https://github.com/NathanDunfield/latex_class>`_,
+though it only depends on a few lines of that.
 
 
 Installation
