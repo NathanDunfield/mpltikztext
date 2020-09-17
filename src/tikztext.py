@@ -41,6 +41,8 @@ def tikz_position(artist):
     return artist_to_tikz.transform(artist.get_position())
 
 def convert_text_to_tikz(text):
+    if not text.get_visible():
+        return ''
     # Get TikZ node options
     horizontal = {'left':'right',
                   'center':'',
@@ -88,6 +90,8 @@ def save_without_text(figure, filename):
         text.set_alpha(alphas[text])
 
 def record_data_coor_sys_for_tikz(axis):
+    if axis.xaxis.get_scale() == 'log' or axis.yaxis.get_scale() == 'log':
+        return "  % No internal axis coordinate system as there is a log scale."
     data_to_tikz = axis.transData + display_to_tikz(axis.figure)
     shift = data_to_tikz.transform([0.0, 0.0])
     delta = data_to_tikz.transform([1.0, 1.0]) - shift

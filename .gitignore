@@ -1,1 +1,7 @@
 .DS_Store
+examples/plots
+examples/*.log
+examples/*.fls
+examples/*.fdb_latexmk
+examples/*.pdf
+examples/*.synctex.gz
