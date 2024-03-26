@@ -5,3 +5,5 @@ examples/*.fls
 examples/*.fdb_latexmk
 examples/*.pdf
 examples/*.synctex.gz
+build/
+mpltikztext.egg-info

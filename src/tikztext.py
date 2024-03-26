@@ -72,20 +72,20 @@ def convert_text_to_tikz(text):
                                                      horvert.strip(),
                                                      text_str)
 
-def save_without_text(figure, filename):
+def save_without_text(figure, filename, **kwargs):
     """
     Saves the figure with all the text removed. It does so by setting
     the opacity alpha to 0 for each Text artist.  I also tried
     "set_visible(False)" which mostly works but things can move
     slightly.
     """
-    figure.savefig(filename)  # Hack to finalize the figure. 
+    figure.savefig(filename, **kwargs)  # Hack to finalize the figure. 
     texts = active_texts(figure)
     alphas = dict()
     for text in texts:
         alphas[text] = text.get_alpha()
         text.set_alpha(0.0)
-    figure.savefig(filename)
+    figure.savefig(filename, **kwargs)
     for text in texts:
         text.set_alpha(alphas[text])
 
@@ -106,7 +106,7 @@ def record_data_coor_sys_for_tikz(axis):
     return content
 
 
-def save_matplotlib_for_paper(figure, file_name, path='plots/'):
+def save_matplotlib_for_paper(figure, file_name, path='plots/', **kwargs):
     """
     Saving a matplotlib figure for use in a paper.  The given filename
     can be of type ".pdf" or ".png" as appropriate.  The graphics
@@ -126,14 +126,16 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/'):
         os.mkdir(image_path)
 
     # Save the image
-    save_without_text(figure, image_file)
+    save_without_text(figure, image_file, **kwargs)
 
     # Make TikZ overlay
-    contents =  "\\begin{tikzoverlay}[width=\\matplotlibfigurewidth]{%s}[\\matplotlibfigurefont]\n" % (image_file,)
+    contents =  "\\begin{tikzpicture}[nmdstd]\n"
+    contents += "  \\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (image_file,)
     tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
     tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
     contents += "\n".join(tikz_commands)
-    contents += "\n\\end{tikzoverlay}\n"
+    contents += "\n  \\end{tikzoverlay*}"
+    contents += "\n\\end{tikzpicture}\n"
 
     # Save to TeX file.
     texname = os.path.join(path, base_name + '.tex')
