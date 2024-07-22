@@ -1,4 +1,4 @@
-""" 
+"""
 Saving Matplotlib figures so that all text becomes a TikZ overlay, and
 hence is easily editable from within LaTeX to match the document style.
 """
@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 import os
 
 def active_texts(figure):
-    """ 
+    """
     Return all nonempty Texts that are actually being drawn. When
     making axis labels, matplotlib throws in labels beyond the current
     x/y-bounds and for sides of the axes that are not currently
@@ -19,7 +19,7 @@ def active_texts(figure):
     return [T for T in texts if T.get_text() and T._renderer is not None]
 
 def display_to_tikz(figure):
-    """ 
+    """
     In the TikZ overlay, the horizontal coordinate ranges from 0 to
     100 and the vertical coordinate ranges from 0 to 100/A where A is
     the aspect ratio (width/height). This function returns the
@@ -36,7 +36,7 @@ def tikz_position(artist):
     """
     Returns the position of the artist in the TikZ coordinate system.
     """
-    figure = artist.get_figure() 
+    figure = artist.get_figure()
     artist_to_tikz = artist.get_transform() + display_to_tikz(figure)
     return artist_to_tikz.transform(artist.get_position())
 
@@ -79,7 +79,7 @@ def save_without_text(figure, filename, **kwargs):
     "set_visible(False)" which mostly works but things can move
     slightly.
     """
-    figure.savefig(filename, **kwargs)  # Hack to finalize the figure. 
+    figure.savefig(filename, **kwargs)  # Hack to finalize the figure.
     texts = active_texts(figure)
     alphas = dict()
     for text in texts:
@@ -106,12 +106,17 @@ def record_data_coor_sys_for_tikz(axis):
     return content
 
 
-def save_matplotlib_for_paper(figure, file_name, path='plots/', **kwargs):
+def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False, **kwargs):
     """
     Saving a matplotlib figure for use in a paper.  The given filename
     can be of type ".pdf" or ".png" as appropriate.  The graphics
-    are saved in the subdirectory "images" of the given "path" with 
-    the TikZ code itself is saved in a corresponding ".tex" file in "path".  
+    are saved in the subdirectory "images" of the given "path" with
+    the TikZ code itself is saved in a corresponding ".tex" file in "path".
+
+    If image_only==True, then it doesn't save the TikZ overlay file,
+    just underlying image.  This is useful if you have hand-edited the
+    TikZ file already but want to (slightly) tweak the matplotlib
+    figure.
     """
     # Setup paths
     image_path = os.path.join(path, 'images')
@@ -129,14 +134,12 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/', **kwargs):
     save_without_text(figure, image_file, **kwargs)
 
     # Make TikZ overlay
-    contents =  "\\begin{tikzpicture}[nmdstd]\n"
-    contents += "  \\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (image_file,)
+    contents = "%Set \graphicspath{{plots/images/}} to include the image files\n"
+    contents += "\\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (file_name,)
     tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
     tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
     contents += "\n".join(tikz_commands)
-    contents += "\n  \\end{tikzoverlay*}"
-    contents += "\n\\end{tikzpicture}\n"
-
+    contents += "\n\\end{tikzoverlay*}"
     # Save to TeX file.
     texname = os.path.join(path, base_name + '.tex')
     texfile = open(texname, 'w')
@@ -159,8 +162,3 @@ def matplotlib_with_opts_matching_save(sage_graphic, **kwds):
     figure.set_canvas(FigureCanvasAgg(figure))
     figure.tight_layout()
     return figure
-              
-    
-    
-
-
