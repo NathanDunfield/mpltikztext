@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'mpltikztext',
-    version = '0.3',
+    version = '0.4',
     author = 'Nathan Dunfield',
     author_email = 'nathan@dunfield.info',
     description = 'Saving Matplotlib figures with the text turned into a TikZ overlay.',

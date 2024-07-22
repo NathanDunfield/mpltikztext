@@ -79,6 +79,7 @@ def save_without_text(figure, filename, **kwargs):
     "set_visible(False)" which mostly works but things can move
     slightly.
     """
+    kwargs['transparent'] = True
     figure.savefig(filename, **kwargs)  # Hack to finalize the figure.
     texts = active_texts(figure)
     alphas = dict()
