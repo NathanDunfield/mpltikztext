@@ -114,6 +114,10 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False
     are saved in the subdirectory "images" of the given "path" with
     the TikZ code itself is saved in a corresponding ".tex" file in "path".
 
+    If "dpi" in kwargs is a list, then one version is saved for each
+    dpi in the list, but only a single ".tex" file is generated, which
+    refers to the image generated with the first dpi listed.
+
     If image_only==True, then it doesn't save the TikZ overlay file,
     just underlying image.  This is useful if you have hand-edited the
     TikZ file already but want to (slightly) tweak the matplotlib
@@ -121,7 +125,7 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False
     """
     # Setup paths
     image_path = os.path.join(path, 'images')
-    base_name = os.path.splitext(file_name)[0]
+    base_name, file_ext = os.path.splitext(file_name)
     image_file = os.path.join(image_path, file_name)
 
     # Create target directories if they do not exist
@@ -132,20 +136,30 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False
         os.mkdir(image_path)
 
     # Save the image
-    save_without_text(figure, image_file, **kwargs)
+    if 'dpi' in kwargs and isinstance(kwargs['dpi'], (list, tuple)):
+        dpis_to_do = kwargs['dpi']
+        file_name = base_name + f'_{dpis_to_do[0]}dpi' + file_ext
+        for dpi in dpis_to_do:
+            image_file = os.path.join(image_path, base_name + f'_{dpi}dpi' + file_ext)
+            kwargs['dpi'] = dpi
+            save_without_text(figure, image_file, **kwargs)
+    else:
+        save_without_text(figure, image_file, **kwargs)
 
-    # Make TikZ overlay
-    contents = "%Set \graphicspath{{plots/images/}} to include the image files\n"
-    contents += "\\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (file_name,)
-    tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
-    tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
-    contents += "\n".join(tikz_commands)
-    contents += "\n\\end{tikzoverlay*}"
-    # Save to TeX file.
-    texname = os.path.join(path, base_name + '.tex')
-    texfile = open(texname, 'w')
-    texfile.write(contents + '\n')
-    texfile.close()
+    if not image_only:
+        # Make TikZ overlay
+        contents = "%Set \graphicspath{{plots/images/}} to include the image files\n"
+        contents += "\\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (file_name,)
+        tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
+        tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
+        contents += "\n".join(tikz_commands)
+        contents += "\n\\end{tikzoverlay*}"
+        # Save to TeX file.
+        texname = os.path.join(path, base_name + '.tex')
+        texfile = open(texname, 'w')
+        texfile.write(contents + '\n')
+        texfile.close()
+
 
 def matplotlib_with_opts_matching_save(sage_graphic, **kwds):
     """

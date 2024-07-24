@@ -12,7 +12,7 @@ axis.set_xlabel(r'$x$')
 axis.set_ylabel(r'$y$')
 axis.set_aspect('equal')
 figure.tight_layout()
-mpltikztext.savefig(figure, 'scatter.jpg', path='plots')
+mpltikztext.savefig(figure, 'scatter.jpg', path='plots', dpi=[150, 600])
 figure.savefig('plots/raw_scatter.jpg')
 
 
