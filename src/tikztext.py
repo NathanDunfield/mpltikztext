@@ -107,7 +107,9 @@ def record_data_coor_sys_for_tikz(axis):
     return content
 
 
-def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False, **kwargs):
+def save_matplotlib_for_paper(figure, file_name, path='plots/',
+                              tikz_width='0.8\\textwidth',
+                              image_only=False, **kwargs):
     """
     Saving a matplotlib figure for use in a paper.  The given filename
     can be of type ".pdf" or ".png" as appropriate.  The graphics
@@ -149,7 +151,7 @@ def save_matplotlib_for_paper(figure, file_name, path='plots/', image_only=False
     if not image_only:
         # Make TikZ overlay
         contents = "%Set \graphicspath{{plots/images/}} to include the image files\n"
-        contents += "\\begin{tikzoverlay*}[width=0.8\\textwidth]{%s}\n" % (file_name,)
+        contents += "\\begin{tikzoverlay*}[width=" + tikz_width + "]{%s}\n" % (file_name,)
         tikz_commands = [convert_text_to_tikz(text) for text in active_texts(figure)]
         tikz_commands += [record_data_coor_sys_for_tikz(axis) for axis in figure.axes]
         contents += "\n".join(tikz_commands)
